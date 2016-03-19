@@ -22,8 +22,8 @@ class KianWorker(Worker):
         self.model = model
         super(KianWorker, self).__init__('KianWorker:' + name, model.wiki)
 
-    def run(self):
-        for item in self.read_list():
+    def _run(self):
+        for item in self._load_pages():
             if self.wiki not in item.sitelinks:
                 continue
             page = item.sitelinks[self.wiki]

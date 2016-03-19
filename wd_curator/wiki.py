@@ -1,23 +1,24 @@
+import json
 import os
 import pywikibot
 import time
-import yaml
+
+from wd_curator import Worker
 
 
-class Wiki(object):
+class WikiWorker(Worker):
 
     """docstring for Wiki"""
 
     def __init__(self, options):
-        super(Wiki, self).__init__()
         self.options = options
-        meta_path = os.path.join(__file__, '../config/meta.yml')
-        self.meta = yaml.load(open(meta_path, 'r'))
-        self.items_checked = []
+        meta_path = os.path.join(__file__, '../config/meta.json')
+        self.meta = json.load(open(meta_path, 'r'))
+        super(Wiki, self).__init__('WikiWorker:' + self.options['dbname'], self.options['dbname'])
 
     @classmethod
     def from_config(cls, file):
-        options = yaml.load(file)
+        options = json.load(file)
         return cls(options)
 
     def run(forever=True):
@@ -32,24 +33,10 @@ class Wiki(object):
     def _run(self):
         items = self._load_pages()
         for item in items:
-            if item.getID() in self.items_checked:
-                continue
             for check in self.meta['checks']:
                 self.run_check(self.meta['checks'][check], item)
             for check in self.options['checks']:
                 self.run_check(self.options['checks'][check], item)
-
-    def _load_pages(self):
-        file_path = os.path.join(__file__, '../data/{0}'.format(self.meta['dbname']))
-        with open(file_path, 'r') as f:
-            for line in f:
-                line = line.replace('\n', '').replace('\r', '').strip()
-                item = pywikibot.ItemPage(self.repo, 'Q' + line)
-                try:
-                    item.get()
-                except pywikibot.NoPage:
-                    continue
-                yield item
 
     def run_check(self, check, item):
 
