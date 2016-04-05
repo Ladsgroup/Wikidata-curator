@@ -2,7 +2,7 @@ import kian.fitness
 import os
 import pywikibot
 
-from kian import TrainedModel
+from kian import TrainedModel, Kian
 
 from wd_curator import Worker
 
@@ -16,7 +16,7 @@ class KianWorker(Worker):
 
         if not os.path.isfile(file_path):
             raise ValueError('You should train the model first')
-        with codecs.open(file_path, 'r', 'utf-8') as f:
+        with open(file_path, 'r') as f:
             cv_set = eval(f.read())
         self.thrashhold = kian.fitness.optimum_thrashhold(cv_set, 0.25)[0]
         self.model = model
@@ -31,12 +31,15 @@ class KianWorker(Worker):
                     for cat in page.categories()]
             features = self.model.label_case(cats)
             res = Kian.kian(self.model.theta, features)[0]
-            if res > second_thrashhold:
+            if res > self.thrashhold:
                 claim = pywikibot.Claim(self.repo, self.model.property_name)
-                claim.setTarget(pywikibot.ItemPage(self.repo, self.model.value))
+                claim.setTarget(
+                    pywikibot.ItemPage(self.repo, self.model.value))
                 item.addClaim(claim, summary='Bot: Adding %s:%s from %s '
                               '([[User:Ladsgroup/Kian|Powered by Kian]])' %
-                              (self.model.property_name, self.model.value, self.wiki))
+                              (self.model.property_name,
+                               self.model.value, self.wiki))
                 source = pywikibot.Claim(self.repo, 'P143')
-                source.setTarget(pywikibot.ItemPage(self.repo, self.sources[self.wiki]))
+                source.setTarget(
+                    pywikibot.ItemPage(self.repo, self.sources[self.wiki]))
                 claim.addSource(source)

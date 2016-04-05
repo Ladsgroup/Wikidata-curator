@@ -5,9 +5,10 @@ from wd_curator import Wiki
 
 
 def arg_parser(args):
-    parser = argparse.ArgumentParser(description='Run a worker for a given wiki')
+    parser = argparse.ArgumentParser(
+        description='Run a worker for a given wiki')
     parser.add_argument('--path', '-p', nargs='?', required=True,
-                        help='Path to yaml file of the wiki')
+                        help='Path to json file of the wiki')
 
     parser.add_argument('--once', '-o', action='store_true', required=False,
                         help='Break after an one-time run')

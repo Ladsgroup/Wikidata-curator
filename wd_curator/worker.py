@@ -1,4 +1,7 @@
+import os
 import pywikibot
+import time
+
 
 class Worker(object):
     """docstring for Worker"""
@@ -9,7 +12,8 @@ class Worker(object):
         self._items_checked = []
 
     def _load_pages(self):
-        file_path = os.path.join(__file__, '../data/{0}'.format(self.meta['dbname']))
+        file_path = os.path.join(__file__,
+                                 '../data/{0}'.format(self.options['dbname']))
         with open(file_path, 'r') as f:
             for line in f:
                 line = line.replace('\n', '').replace('\r', '').strip()
@@ -23,7 +27,16 @@ class Worker(object):
                     continue
                 yield item
 
-    def run(forever=True):
+    def run(self, forever=True, really_forever=False):
+        if really_forever:
+            print('Are you sure?')
+            try:
+                self.run(forever, False)
+            except:
+                print('Got an error, re-running in 10 seconds')
+                time.sleep(10)
+                self.run(forever, True)
+
         if not forever:
             self._run()
             return
