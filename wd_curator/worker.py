@@ -5,15 +5,17 @@ import time
 
 class Worker(object):
     """docstring for Worker"""
-    def __init__(self, name, wiki):
+    def __init__(self, name, wiki, data_dir=None, repo=None):
         super(Worker, self).__init__()
         self.name = name
         self.wiki = wiki
+        self.data_dir = data_dir
+        self.repo = repo
         self._items_checked = []
 
     def _load_pages(self):
-        file_path = os.path.join(__file__,
-                                 '../data/{0}'.format(self.options['dbname']))
+        file_path = os.path.join(self.data_dir,
+                                 '{0}'.format(self.options['dbname']))
         with open(file_path, 'r') as f:
             for line in f:
                 line = line.replace('\n', '').replace('\r', '').strip()
@@ -32,6 +34,9 @@ class Worker(object):
             print('Are you sure?')
             try:
                 self.run(forever, False)
+            except KeyboardInterrupt:
+                print('Keyboard interrupt, stopping')
+                return
             except:
                 print('Got an error, re-running in 10 seconds')
                 time.sleep(10)

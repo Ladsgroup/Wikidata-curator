@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from wd_curator import Wiki
+from wd_curator import WikiWorker
 
 
 def arg_parser(args):
@@ -20,7 +20,7 @@ def main(argv=None):
         argv = sys.argv[1:]
     args = arg_parser(argv)
 
-    wiki = Wiki.from_config(open(args.path, 'r'))
+    wiki = WikiWorker.from_config(open(args.path, 'r'))
     wiki.run(forever=not args.once)
 
 
